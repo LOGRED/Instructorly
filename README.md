@@ -22,6 +22,9 @@
 6. **학생 채팅(자랑방)** — 학습 화면 오른쪽. **몇 초마다 폴링**(4초)하는 비실시간 채팅. 이미지·동영상·오디오 첨부 업로드 지원.
 7. **AI 스튜디오** (`/studio`) — **OpenRouter** 기반 **유료 멀티모델**로 텍스트·이미지·동영상·오디오 생성. 모델별 **실시간 단가**를 **크레딧**(1크레딧 = 0.1원)으로 환산하고 사용량을 기록. (GPT-5.5 · Claude Opus 4.8 · Gemini · Sora 2 Pro · Veo 3.1 · Nano Banana · GPT Audio 등 + 무료 모델 일부)
 8. **음성 받아쓰기(STT)** — 강의 제작 AI 채팅에서 마이크로 말하면 **Soniox** 실시간 전사(한국어·영어). 서버가 단기 임시 키를 발급해 실제 키는 브라우저에 노출하지 않음.
+9. **강좌 운영** — `/programs`(강좌실)에서 강좌를 만들고 **주차별 레슨**·**로스터**·**진도 대시보드**·**초대 코드 참여**·**크레딧**으로 반을 운영.
+10. **AI 챗봇 드릴** (`/drill`) — ChatGPT·Claude·Gemini·Grok UI를 본뜬 연습 환경에서 프롬프트를 훈련.
+11. **커뮤니티** — 강좌별 **공지**와 **게시글·댓글**로 소통.
 
 ![블럭 에디터 — 팔레트에서 드래그하거나 슬래시(/) 명령으로 블럭 삽입](docs/readme/editor.png)
 
@@ -92,22 +95,26 @@ make lint       # ESLint
 
 ![사용 흐름 — 로그인·역할 선택 → 강사가 블럭으로 강의 제작 → 학생이 페이지를 넘기며 학습](docs/readme/flow.png)
 
-1. `/login` — 닉네임 입력 + 역할(강사/학생) 선택 (비밀번호 없음).
-2. **강사**: `/courses` → "새 강의 만들기" → `/build/[id]`에서 블럭으로 제작 → 저장.
-3. **학생**: `/courses` → "학습하기" → `/learn/[id]`에서 페이지를 넘기며 학습, 이미지/AI 블럭 재실행, 오른쪽 채팅.
+1. `/login` — **아이디·비밀번호**로 로그인하거나 회원가입(이름 + 역할: 강사/학생). 데모 계정 — 강사 `teacher / 1234`, 학생 `kim / 1234`.
+2. **강사**: `/programs`(강좌실) → "새 강좌 만들기" → `/build/[id]`에서 블럭으로 제작 → 저장. 초대 코드로 학생을 받습니다.
+3. **학생**: 초대 코드로 강좌 참여 → `/learn/[id]`에서 페이지를 넘기며 학습, 이미지/AI 블럭 재실행, 오른쪽 채팅.
 
 ## 주요 경로
 
 ```
 app/
   page.tsx                  랜딩
-  login/page.tsx            로그인(닉네임+역할)
-  courses/                  강의 목록 + 생성 다이얼로그
+  login/page.tsx            로그인·회원가입 (아이디+비번+역할)
+  programs/                 강좌실: 목록·상세·주차·로스터·진도·학생 크레딧
   build/[id]/               강사 빌더 (블럭 캔버스 + 팔레트 + 슬래시)
   learn/[id]/               학생 플레이어 (페이지 넘김 + 채팅)
+  drill/[id]/               AI 챗봇 드릴 (ChatGPT·Claude·Gemini·Grok 클론)
   studio/page.tsx           AI 스튜디오 (유료 멀티모델 생성)
+  announcements/ posts/     공지 · 게시글(댓글·수정)
+  join/[code]/ settings/    초대 코드 참여 · 내 정보/설정
   api/
-    courses/[id]/(chat)     강의 CRUD + 채팅
+    auth/(login|register)   아이디·비밀번호 인증
+    programs/ courses/      강좌·레슨 CRUD · 등록 · 채팅
     generate/(image|text)   Pollinations 무료 생성 (소요 ms 측정)
     studio/                 OpenRouter 유료 (모델·생성·사용량·크레딧)
     stt/token               Soniox 임시 키 발급 (실시간 STT)
@@ -125,9 +132,9 @@ lib/
 
 ## 데이터
 
-- SQLite 파일: `data/maketor.db` (첫 실행 시 자동 생성 + 데모 강의 시드).
+- SQLite 파일: `data/maketor.db` (첫 실행 시 스키마 자동 생성). 데모 계정·데이터는 `node scripts/seed-demo.cjs`로 시드 — 강사 `teacher / 1234`, 학생 `kim / 1234`.
 - 업로드 파일: `public/uploads/`.
-- 접근성/신원: 브라우저 `localStorage`.
+- 신원·세션 + 접근성 설정: 브라우저 `localStorage`.
 
 ## 로고
 
