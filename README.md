@@ -30,12 +30,34 @@
 
 ## 실행
 
+`make` 사용을 권장합니다. 인자 없이 `make`만 입력하면 명령 목록이 표시됩니다.
+
 ```bash
-npm install        # 의존성 (이미 설치되어 있다면 생략)
-npm run dev        # 개발 서버 → http://localhost:3000
-npm run build      # 프로덕션 빌드
-npm start          # 프로덕션 실행
+make            # 명령 목록(도움말)
+make dev        # 개발 서버 → http://localhost:3000
+make build      # 프로덕션 빌드
+make run        # 빌드 후 프로덕션 실행
+make lint       # ESLint
 ```
+
+### make 명령어
+
+| 명령 | 설명 |
+|------|------|
+| `make` · `make help` | 사용 가능한 명령 목록 |
+| `make install` | 의존성 설치 (필요 시에만) |
+| `make reinstall` | `node_modules` 삭제 후 재설치 (네이티브 모듈 재빌드) |
+| `make dev` | 개발 서버 (webpack). 포트 변경은 `make dev PORT=4000` |
+| `make build` | 프로덕션 빌드 (webpack) |
+| `make start` | 프로덕션 서버 (빌드 산출물 필요) |
+| `make run` | `build` 후 `start` |
+| `make lint` | ESLint 실행 |
+| `make db-reset` | SQLite DB 삭제 → 다음 실행 시 재생성 (⚠️ 데이터 소실) |
+| `make clean` | 빌드 캐시 삭제 (`.next`, `tsconfig.tsbuildinfo`) |
+| `make clean-all` | 빌드 캐시 + `node_modules` 전체 삭제 |
+| `make all` | 의존성 설치 + 빌드 |
+
+> `make`는 내부적으로 `npm`을 호출합니다. 직접 `npm install` / `npm run dev` / `npm run build` / `npm start`를 써도 동일하게 동작합니다.
 
 > **중요 — webpack 사용**: `dev`/`build` 스크립트는 `--webpack` 플래그를 씁니다.
 > 프로젝트 경로에 한글(예: `진흥원_프론트엔드_프로토타입`)이 포함되어 있으면
