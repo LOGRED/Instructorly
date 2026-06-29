@@ -1,0 +1,21 @@
+Use your built-in image generation tool to generate exactly one image. Do not write or run any code.
+
+A clean, modern LEFT-TO-RIGHT numbered step FLOWCHART titled "Instructorly · 강사(Instructor) 유저 플로우". Flat editorial vector infographic. IMPORTANT: every Korean label must be rendered in the Pretendard font, perfectly legible, with NO spelling mistakes and NO garbled characters.
+
+Palette = minimal grayscale plus ONE accent color: soft light-gray canvas (#F4F5F6), dark charcoal text (#191A1B), white rounded-rectangle cards with thin light-gray (#E2E4E7) borders and a very subtle soft shadow. The single accent color is a muted indigo-blue (#3B5BDB), used ONLY for: the circular step-number badges (①②③…), the connecting arrows between steps, and small role/tool pills. Generous whitespace, crisp, high resolution, presentation quality. Landscape 16:9.
+
+Six steps connected by thin indigo arrows, left to right. Each step = a white card with an indigo circular number badge, a bold Korean title, and one line of small gray detail:
+
+① 로그인 · 회원가입  —  "강사" 역할로 시작
+② 강좌 만들기  —  제목 · 기간 · 요일 입력 → 초대 코드 자동 발급
+③ 주차 추가  —  운영 리듬에 맞춰 주차(Week) 구성
+④ 콘텐츠 제작 · 배치  —  주차 안에 항목 채우기
+⑤ 수강생 모으기  —  아이디 검색 등록 또는 초대 링크 공유 · 드래그로 순서 배치
+⑥ 현황 확인  —  진행률 대시보드 · 강의별 수강생 작업/진도 열람
+
+Under step ④, draw three small stacked sub-cards (branch) labelled:
+   · 강의: 블럭 빌더(드래그 · 슬래시) + AI 이미지 · 글 생성
+   · 게시물 · 공지 작성
+   · 시험 · 연습: LLM(ChatGPT · Claude · Gemini · Grok) 선택
+
+Visual tone references: Notion, Linear, midday.ai — restrained, thin lines, rounded corners, lots of negative space, professional. No decorative illustrations or photos.

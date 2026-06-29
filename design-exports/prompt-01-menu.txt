@@ -1,0 +1,34 @@
+Use your built-in image generation tool to generate exactly one image. Do not write or run any code.
+
+A clean, modern information-architecture SITEMAP / screen-menu-structure diagram for a Korean web app. Title at top: "Instructorly · 화면 메뉴 구조도". Flat editorial vector infographic, top-down org-chart tree. IMPORTANT: every Korean label must be rendered in the Pretendard font, perfectly legible, with NO spelling mistakes and NO garbled characters.
+
+Palette = minimal grayscale plus ONE accent color: soft light-gray canvas (#F4F5F6), dark charcoal text (#191A1B), white rounded-rectangle cards with thin light-gray (#E2E4E7) borders and a very subtle soft shadow. The single accent color is a muted indigo-blue (#3B5BDB), used ONLY for: the top root node fill, the thin tree connector lines, and small role pills. Lots of negative space, crisp, high resolution, presentation quality. Landscape 4:3.
+
+Structure (top root node, accent-blue filled, white text):
+ROOT: "Instructorly — 누구나 AI 강사가 되는 LMS"
+
+Five grouped branches fan out below the root, connected by thin indigo lines. Each branch is a column with a small bold gray section header, then a vertical stack of white screen cards. Each card shows the Korean screen name in bold, a small gray monospace route path under it, and a tiny role pill (공용 / 강사 / 수강생).
+
+Branch 1 — header "진입 · 인증":
+  • 랜딩    /            (공용)
+  • 로그인 · 회원가입    /login    (공용)
+
+Branch 2 — header "강좌 운영 (프로그램)":
+  • 강좌 목록    /programs    (공용)
+  • 강좌 상세 · 주차 구성    /programs/[id]    (공용)
+  • 수강생 현황    /…/students    (강사)
+  • 초대 링크 참여    /join/[code]    (수강생)
+
+Branch 3 — header "강의":
+  • 강의 목록    /courses    (공용)
+  • 블럭 빌더    /build/[id]    (강사)
+  • 학습 플레이어 · 자랑방    /learn/[id]    (수강생)
+
+Branch 4 — header "커뮤니티":
+  • 게시물 · 댓글    /posts/[id]    (공용)
+  • 공지사항    /announcements/[id]    (공용)
+
+Branch 5 — header "평가 · 연습":
+  • 시험 · 연습 (LLM 클론)    /drill/[id]    (수강생)
+
+Visual tone references: Notion, Linear, midday.ai — restrained, lots of whitespace, thin lines, rounded corners, professional. Do not add unrelated decorative illustrations or photos.
