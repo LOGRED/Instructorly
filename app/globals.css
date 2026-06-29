@@ -1,0 +1,456 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  /* Tailwind 기본 컨테이너 폭은 7xl(80rem)까지만 있어, 강의 본문 폭 "8xl"용으로 추가한다. */
+  --container-8xl: 90rem;
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* ===================================================================
+   MAKETOR — brand + accessibility layer (midday-flavoured)
+   - Pretendard for Korean body/headings
+   - Geist Mono for the "console" technical voice (labels, timers, numbers)
+   - root-rem font scaling + high-contrast mode for older / low-vision users
+   =================================================================== */
+
+:root {
+  --font-sans: "Pretendard Variable", Pretendard, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+
+  /* one restrained accent, used sparingly (active page dot, links, focus) */
+  --brand: oklch(0.55 0.16 256);
+  --brand-foreground: oklch(0.985 0 0);
+
+  /* 경고·주의 상태(더티 표시, 비밀 댓글 등)를 위한 시맨틱 토큰. amber 계열. */
+  --warning: oklch(0.66 0.15 67);
+  --warning-foreground: oklch(0.985 0 0);
+
+  /* 접근성 — 글자 크기 축(텍스트 전용): html font-size 배수 */
+  --font-scale: 1;
+  /* 접근성 — UI 크기 축(버튼·여백·아이콘 전용): spacing 배수.
+     글자 크기와 완전히 독립적으로 동작하도록 아래 --spacing에서 --font-scale을 나눠 상쇄한다. */
+  --ui-scale: 1;
+
+  /* crisper, midday-tight corners */
+  --radius: 0.5rem;
+}
+
+/* 다크 모드에서는 경고색을 살짝 밝혀 가독성 확보. */
+.dark {
+  --warning: oklch(0.78 0.15 75);
+  --warning-foreground: oklch(0.205 0 0);
+}
+
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+}
+
+html {
+  font-size: calc(100% * var(--font-scale));
+}
+
+[data-font-scale="lg"] {
+  --font-scale: 1.18;
+}
+[data-font-scale="xl"] {
+  --font-scale: 1.42;
+}
+
+/* UI 크기 축 — Tailwind v4의 모든 간격/크기 유틸(p-*, gap-*, size-*, w-*, h-* 등)은
+   단일 토큰 --spacing(기본 0.25rem)에서 calc(var(--spacing) * N)으로 파생된다.
+   --spacing에 --ui-scale을 곱하고 --font-scale로 나누면:
+     - 글자 크기를 바꿔도(root rem 변화) 간격 px는 그대로(font 상쇄) → 글자 슬라이더는 텍스트만 키움
+     - UI 크기를 바꾸면 간격·버튼·아이콘만 커짐(텍스트는 rem이라 무반응) → UI 슬라이더는 레이아웃만 키움
+   => 두 축 완전 분리. 기본값(둘 다 1)에서는 0.25rem 그대로라 동작 변화 없음. */
+[data-ui-scale="lg"] {
+  --ui-scale: 1.18;
+}
+[data-ui-scale="xl"] {
+  --ui-scale: 1.42;
+}
+
+:root {
+  --spacing: calc(0.25rem * var(--ui-scale) / var(--font-scale));
+}
+
+/* high-contrast mode */
+[data-contrast="high"] {
+  --foreground: oklch(0 0 0);
+  --background: oklch(1 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0 0 0);
+  --muted-foreground: oklch(0.26 0 0);
+  --border: oklch(0.42 0 0);
+  --input: oklch(0.42 0 0);
+  --ring: oklch(0 0 0);
+  --primary: oklch(0 0 0);
+  --primary-foreground: oklch(1 0 0);
+  --warning: oklch(0.42 0.15 58);
+  --warning-foreground: oklch(1 0 0);
+}
+[data-contrast="high"].dark {
+  --foreground: oklch(1 0 0);
+  --background: oklch(0 0 0);
+  --card: oklch(0.13 0 0);
+  --card-foreground: oklch(1 0 0);
+  --muted-foreground: oklch(0.86 0 0);
+  --border: oklch(0.72 0 0);
+  --input: oklch(0.72 0 0);
+  --ring: oklch(1 0 0);
+  --primary: oklch(1 0 0);
+  --primary-foreground: oklch(0 0 0);
+  --warning: oklch(0.86 0.15 82);
+  --warning-foreground: oklch(0 0 0);
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+  }
+  /* always-visible, generous focus ring for keyboard / low-vision users */
+  :focus-visible {
+    outline: 3px solid var(--brand);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--brand) 22%, transparent);
+  }
+}
+
+/* ===================================================================
+   스크롤바 — 트랙(네모 배경) 투명, thumb만 둥근 막대로 표시.
+   분리된 박스 느낌 제거. Firefox(scrollbar-*) + WebKit/Chrome 모두 대응.
+   =================================================================== */
+@layer base {
+  * {
+    scrollbar-width: thin;
+    /* thumb 색 / track 색(투명) */
+    scrollbar-color: var(--border) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  /* 네모 공간(트랙) 투명 */
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 9999px;
+    /* 투명 테두리 + content-box로 thumb를 가늘게, 트랙에서 살짝 띄움 */
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+    background-clip: content-box;
+  }
+  /* 가로·세로 교차 코너도 투명 */
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+@layer components {
+  /* midday "console" eyebrow: uppercase mono micro-label */
+  .eyebrow {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.72rem;
+    line-height: 1;
+    color: var(--muted-foreground);
+  }
+  /* tabular mono for numbers, timers, timestamps */
+  .mono {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  /* shared lecture/markdown reading style */
+  .maketor-prose {
+    line-height: 1.75;
+    word-break: keep-all;
+  }
+  .maketor-prose > * + * {
+    margin-top: 0.85em;
+  }
+  .maketor-prose h1 {
+    font-size: 1.7em;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+  .maketor-prose h2 {
+    font-size: 1.4em;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .maketor-prose h3 {
+    font-size: 1.18em;
+    font-weight: 600;
+  }
+  .maketor-prose ul {
+    list-style: disc;
+    padding-left: 1.4em;
+  }
+  .maketor-prose ol {
+    list-style: decimal;
+    padding-left: 1.4em;
+  }
+  .maketor-prose li {
+    margin-top: 0.3em;
+  }
+  .maketor-prose a {
+    color: var(--brand);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .maketor-prose code {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    background: var(--muted);
+    padding: 0.12em 0.38em;
+    border-radius: 0.35em;
+    font-size: 0.9em;
+  }
+  .maketor-prose blockquote {
+    border-left: 3px solid var(--border);
+    padding-left: 1em;
+    color: var(--muted-foreground);
+  }
+  .maketor-prose strong {
+    font-weight: 700;
+  }
+  .maketor-prose img {
+    border-radius: var(--radius);
+    max-width: 100%;
+  }
+}
+
+/* ===================================================================
+   시험·연습 LLM 클론(ChatGPT·Claude·Gemini·Grok) 전용 애니메이션.
+   생성(스트리밍) 표시를 실제 사이트와 비슷하게 흉내 낸다.
+   =================================================================== */
+
+/* 스트리밍 커서 깜빡임 */
+@keyframes drillBlink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ChatGPT 점 3개 — 위아래로 통통 */
+@keyframes drillBounce {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+/* Claude — 가운데 점이 숨 쉬듯 커졌다 작아짐 */
+@keyframes drillPulse {
+  0%,
+  100% {
+    transform: scale(0.7);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Gemini 별 — 반짝이며 살짝 회전·확대 */
+@keyframes drillSparkle {
+  0%,
+  100% {
+    transform: scale(0.85) rotate(0deg);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.1) rotate(90deg);
+    opacity: 1;
+  }
+}
+
+/* Gemini 그라데이션 글자 흐르기 */
+@keyframes drillGradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+/* Grok / 공통 — 부드럽게 나타남 */
+@keyframes drillFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Gemini 무지개 그라데이션 텍스트(빈 화면 인사말). */
+.drill-gemini-gradient {
+  background: linear-gradient(
+    90deg,
+    #4285f4,
+    #9b72cb,
+    #d96570,
+    #4285f4
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: drillGradientShift 6s linear infinite;
+}
+
+.drill-fade-in {
+  animation: drillFadeIn 0.35s ease both;
+}
