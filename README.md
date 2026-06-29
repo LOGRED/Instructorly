@@ -20,6 +20,8 @@
    - **LLM 블럭**: 프롬프트 → 실제 텍스트 생성 + 소요 시간.
    - **스크롤이 아닌 페이지 넘김** 방식의 LMS.
 6. **학생 채팅(자랑방)** — 학습 화면 오른쪽. **몇 초마다 폴링**(4초)하는 비실시간 채팅. 이미지·동영상·오디오 첨부 업로드 지원.
+7. **AI 스튜디오** (`/studio`) — **OpenRouter** 기반 **유료 멀티모델**로 텍스트·이미지·동영상·오디오 생성. 모델별 **실시간 단가**를 **크레딧**(1크레딧 = 0.1원)으로 환산하고 사용량을 기록. (GPT-5.5 · Claude Opus 4.8 · Gemini · Sora 2 Pro · Veo 3.1 · Nano Banana · GPT Audio 등 + 무료 모델 일부)
+8. **음성 받아쓰기(STT)** — 강의 제작 AI 채팅에서 마이크로 말하면 **Soniox** 실시간 전사(한국어·영어). 서버가 단기 임시 키를 발급해 실제 키는 브라우저에 노출하지 않음.
 
 ![블럭 에디터 — 팔레트에서 드래그하거나 슬래시(/) 명령으로 블럭 삽입](docs/readme/editor.png)
 
@@ -30,9 +32,24 @@
 - **better-sqlite3** (Next API Routes에 파일 기반 SQLite)
 - **@dnd-kit** (블럭 드래그&드롭) · **react-markdown** · **zustand** · **next-themes** · **sonner**
 - **Pretendard**(CDN) · **Geist Mono**
-- **AI 생성**: [Pollinations](https://pollinations.ai) 무료 API (키 불필요)
-  - 이미지: `image.pollinations.ai` → 서버에서 받아 data URL로 인라인 저장
-  - 텍스트: `text.pollinations.ai`
+- **AI 생성 — 두 경로**:
+  - **무료** · [Pollinations](https://pollinations.ai) (키 불필요) — 강의 **블럭**의 이미지(`image.pollinations.ai`, flux)·텍스트(`text.pollinations.ai`). 서버에서 받아 data URL로 인라인 저장.
+  - **유료** · [OpenRouter](https://openrouter.ai) (`OPENROUTER_API_KEY`) — **AI 스튜디오**의 텍스트·이미지·동영상·오디오. 응답의 `usage.cost`(USD)를 실시간 환율로 **크레딧** 환산.
+  - **유료** · [Soniox](https://soniox.com) (`SONIOX_API_KEY`) — 실시간 음성 받아쓰기(STT) WebSocket.
+
+## 환경 변수
+
+유료 공급자 키는 프로젝트 루트 `.env.local`에 넣습니다(이 파일은 git에서 제외됨). 무료 Pollinations 경로는 키가 필요 없습니다.
+
+| 키 | 필수 | 용도 |
+|----|:--:|------|
+| `OPENROUTER_API_KEY` | ✅ | AI 스튜디오(텍스트·이미지·동영상·오디오) 전체 |
+| `SONIOX_API_KEY` | ✅ | 음성 받아쓰기(STT) |
+| `OPENROUTER_SITE_URL` | — | OpenRouter `HTTP-Referer` 헤더 (기본 `http://localhost:3000`) |
+| `OPENROUTER_SITE_NAME` | — | OpenRouter `X-Title` 헤더 (기본 `Instructorly AI Studio`) |
+| `SONIOX_STT_MODEL` | — | 실시간 STT 모델 (기본 `stt-rt-preview`) |
+
+> 키가 없으면 해당 **유료 기능만** 비활성화되고, 무료 블럭 생성과 나머지 LMS 기능은 정상 동작합니다.
 
 ## 실행
 
@@ -88,16 +105,22 @@ app/
   courses/                  강의 목록 + 생성 다이얼로그
   build/[id]/               강사 빌더 (블럭 캔버스 + 팔레트 + 슬래시)
   learn/[id]/               학생 플레이어 (페이지 넘김 + 채팅)
+  studio/page.tsx           AI 스튜디오 (유료 멀티모델 생성)
   api/
     courses/[id]/(chat)     강의 CRUD + 채팅
-    generate/(image|text)   Pollinations 생성 (소요 ms 측정)
+    generate/(image|text)   Pollinations 무료 생성 (소요 ms 측정)
+    studio/                 OpenRouter 유료 (모델·생성·사용량·크레딧)
+    stt/token               Soniox 임시 키 발급 (실시간 STT)
     upload/                 첨부 업로드 → public/uploads
 components/
   blocks/                   이미지·LLM·뷰·편집 블럭, 아이콘
   course-chat.tsx           폴링 채팅 패널
   accessibility-toolbar.tsx 글자 크기·고대비·테마
 lib/
-  db.ts types.ts pollinations.ts api.ts blocks.ts store.ts identity.ts
+  db.ts types.ts api.ts blocks.ts store.ts identity.ts
+  pollinations.ts           무료 생성(블럭)
+  openrouter.ts credits.ts usage.ts   유료 스튜디오·크레딧·사용량
+  soniox-stt.ts             실시간 받아쓰기 훅
 ```
 
 ## 데이터
