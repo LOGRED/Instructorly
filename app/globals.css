@@ -454,3 +454,14 @@ html {
 .drill-fade-in {
   animation: drillFadeIn 0.35s ease both;
 }
+
+/* 랜딩 눈동자 — 커서 추적 이동을 부드럽게, 감소된 모션 환경에서는 즉시 이동 */
+.eye-pupil {
+  transition: transform 80ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eye-pupil {
+    transition: none;
+  }
+}
