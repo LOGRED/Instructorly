@@ -11,7 +11,7 @@ import { LogOut, LayoutGrid, List, Square, Image } from "lucide-react";
 import { toast } from "sonner";
 
 import { useIdentity } from "@/lib/identity";
-import { usePrefs, type FontScale, type UiScale, type CardStyle } from "@/lib/store";
+import { usePrefs, type FontScale, type UiScale, type CardStyle, type CornerRadius } from "@/lib/store";
 import { updateProfile } from "@/lib/api";
 import { AVATAR_CATEGORIES, avatarsByCategory, avatarSrc } from "@/lib/avatars";
 import { cn } from "@/lib/utils";
@@ -117,6 +117,15 @@ const GROUP_OPTIONS: { value: boolean; label: string }[] = [
     { value: false, label: "OFF" },
 ];
 
+// 모서리 둥글기 세그먼트 정의 — 버튼·카드 등 전역 --radius 값을 5단계로 조절한다. previewPx는 미리보기 사각형 둥글기(px).
+const CORNER_RADIUS_OPTIONS: { value: CornerRadius; label: string; previewPx: number }[] = [
+    { value: "none", label: "각짐", previewPx: 0 },
+    { value: "sm", label: "살짝", previewPx: 4 },
+    { value: "base", label: "기본", previewPx: 8 },
+    { value: "lg", label: "둥글게", previewPx: 12 },
+    { value: "xl", label: "많이", previewPx: 16 },
+];
+
 // 내 정보·설정 페이지 컴포넌트.
 export default function SettingsPage() {
     const router = useRouter();
@@ -141,6 +150,8 @@ export default function SettingsPage() {
     const setCardStyle = usePrefs((s) => s.setCardStyle);
     const groupByContent = usePrefs((s) => s.groupByContent);
     const setGroupByContent = usePrefs((s) => s.setGroupByContent);
+    const cornerRadius = usePrefs((s) => s.cornerRadius);
+    const setCornerRadius = usePrefs((s) => s.setCornerRadius);
 
     // 테마 — SSR 불일치 방지를 위한 mounted 가드
     const { theme, setTheme } = useTheme();
@@ -387,6 +398,34 @@ export default function SettingsPage() {
                                             )}
                                         >
                                             {label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* 모서리 둥글기 세그먼트 — 버튼·카드 등 전역 모서리 둥글기(--radius)를 5단계로 조절한다 */}
+                            <div className="flex flex-col gap-2">
+                                <span className="text-sm text-muted-foreground">버튼 · 카드 모서리 둥글기</span>
+                                <div className="grid grid-cols-5 gap-2">
+                                    {CORNER_RADIUS_OPTIONS.map(({ value, label, previewPx }) => (
+                                        <button
+                                            key={value}
+                                            type="button"
+                                            onClick={() => setCornerRadius(value)}
+                                            aria-pressed={cornerRadius === value}
+                                            className={cn(
+                                                "flex flex-col items-center gap-1.5 rounded-lg border-2 px-1 py-2.5 transition-all",
+                                                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                                                cornerRadius === value
+                                                    ? "border-primary bg-primary/10"
+                                                    : "border-border bg-muted/40 hover:bg-muted/80",
+                                            )}
+                                        >
+                                            <span
+                                                className="size-6 border-2 border-foreground/60"
+                                                style={{ borderRadius: previewPx }}
+                                            />
+                                            <span className="text-xs font-medium">{label}</span>
                                         </button>
                                     ))}
                                 </div>

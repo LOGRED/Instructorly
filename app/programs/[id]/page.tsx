@@ -20,8 +20,9 @@ import {
     getPost,
     getAnnouncement,
     getDrill,
+    getAtelier,
 } from "@/lib/api";
-import type { Program, Enrollment, LessonProgress, Week, WeekItem, WeekItemType, LlmProvider } from "@/lib/types";
+import type { Program, Enrollment, LessonProgress, Week, WeekItem, WeekItemType, LlmProvider, AtelierGenre } from "@/lib/types";
 import { useIdentity } from "@/lib/identity";
 import { newId } from "@/lib/id";
 import { copyText } from "@/lib/clipboard";
@@ -50,6 +51,10 @@ interface ItemMeta {
     pageCount?: number;
     /** 시험·연습 전용 — 선택한 LLM(브랜드 로고 표시용). */
     provider?: LlmProvider;
+    /** 실습(atelier) 전용 — 장르(배지 라벨 "시 실습" 등에 쓴다). */
+    genre?: AtelierGenre;
+    /** 실습(atelier) 전용 — 시작 템플릿 id. 있으면 배지에 장르를 표기하고, 없으면 그냥 "실습". */
+    templateId?: string;
 }
 
 export default function ProgramDetailPage() {
@@ -91,6 +96,9 @@ export default function ProgramDetailPage() {
                     } else if (item.type === "announcement") {
                         const announcement = await getAnnouncement(item.id);
                         return [item.id, { id: item.id, type: item.type, title: announcement.title }];
+                    } else if (item.type === "atelier") {
+                        const atelier = await getAtelier(item.id);
+                        return [item.id, { id: item.id, type: item.type, title: atelier.title, genre: atelier.genre, templateId: atelier.templateId }];
                     } else {
                         // 시험·연습(exam/practice)
                         const drill = await getDrill(item.id);

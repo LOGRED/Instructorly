@@ -22,7 +22,7 @@ import {
 
 import { Markdown } from "@/components/markdown";
 import {
-    useFakeChat,
+    useLlmChat,
     useAutoScroll,
     BlinkingCaret,
     type LlmCloneProps,
@@ -57,7 +57,7 @@ function ClaudeMark({ className }: { className?: string }) {
 
 /** claude.ai 화면을 픽셀 단위로 재현한 시험·연습 컴포넌트. */
 export function ClaudeClone({ userName, onReplyComplete }: LlmCloneProps) {
-    const chat = useFakeChat({
+    const chat = useLlmChat({
         provider: "claude",
         onReplyComplete,
         thinkingMs: 700,
@@ -231,7 +231,7 @@ export function ClaudeClone({ userName, onReplyComplete }: LlmCloneProps) {
                 <header className="flex h-12 shrink-0 items-center justify-between px-4">
                     {/* 모델 선택 필 */}
                     <button className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[14px] text-[#1f1e1d]/70 hover:bg-[#e5e3dc]">
-                        Claude Sonnet 4.6
+                        Claude Opus 4.8
                         <ChevronDown className="size-[15px] text-[#1f1e1d]/45" />
                     </button>
                     {/* 아바타 */}
@@ -260,7 +260,7 @@ export function ClaudeClone({ userName, onReplyComplete }: LlmCloneProps) {
                             님
                         </h1>
                         <div className="w-full">
-                            <Composer />
+                            {Composer()}
                         </div>
                     </div>
                 ) : (
@@ -348,7 +348,7 @@ export function ClaudeClone({ userName, onReplyComplete }: LlmCloneProps) {
 
                         {/* 하단 Composer */}
                         <div className="pb-3">
-                            <Composer />
+                            {Composer()}
                         </div>
                     </>
                 )}

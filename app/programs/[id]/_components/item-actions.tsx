@@ -16,6 +16,7 @@ import {
     deletePost,
     deleteAnnouncement,
     deleteDrill,
+    deleteAtelier,
 } from "@/lib/api";
 import type { Program, WeekItem, WeekItemType } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,7 @@ const TYPE_LABEL: Record<WeekItemType, string> = {
     announcement: "공지사항",
     exam: "시험",
     practice: "연습",
+    atelier: "실습",
 };
 
 export function ItemActions({
@@ -82,6 +84,7 @@ export function ItemActions({
             if (item.type === "lesson") await deleteCourse(item.id);
             else if (item.type === "post") await deletePost(item.id);
             else if (item.type === "announcement") await deleteAnnouncement(item.id);
+            else if (item.type === "atelier") await deleteAtelier(item.id);
             else await deleteDrill(item.id);
 
             toast.success(`${label}이(가) 삭제되었습니다.`);

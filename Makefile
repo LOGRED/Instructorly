@@ -2,13 +2,14 @@
 # Next.js 16 (webpack 강제) · better-sqlite3 · SQLite 파일 DB
 # 사용법:  make            (도움말)
 #          make dev        (개발 서버)
+#          make dev-https  (개발 서버, HTTPS 자체 서명 인증서)
 #          make build      (프로덕션 빌드)
 #          make run        (빌드 후 프로덕션 실행)
 
 # ── 설정 ─────────────────────────────────────────────────────────
 SHELL    := /bin/bash
 NPM      := npm
-PORT     ?= 3000
+PORT     ?= 3210
 DB       := data/maketor.db
 # Hangul 경로에서 Turbopack이 깨지므로 dev/build는 package.json에서 --webpack 고정.
 
@@ -43,6 +44,10 @@ reinstall: ## node_modules 삭제 후 재설치 (네이티브 모듈 재빌드)
 .PHONY: dev
 dev: install ## 개발 서버 (webpack, http://localhost:3000)
 	$(NPM) run dev -- --port $(PORT)
+
+.PHONY: dev-https
+dev-https: install ## 개발 서버 HTTPS (자체 서명 인증서, https://localhost:$(PORT))
+	$(NPM) run dev -- --port $(PORT) --experimental-https
 
 # ── 빌드 ─────────────────────────────────────────────────────────
 .PHONY: build

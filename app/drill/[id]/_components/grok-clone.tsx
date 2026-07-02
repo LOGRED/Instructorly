@@ -25,7 +25,7 @@ import {
 
 import { Markdown } from "@/components/markdown";
 import {
-    useFakeChat,
+    useLlmChat,
     useAutoScroll,
     BlinkingCaret,
     type LlmCloneProps,
@@ -58,7 +58,7 @@ const SIDEBAR_HISTORY = [
 
 /** Grok 클론 메인 컴포넌트 — 검정 배경 미니멀 채팅 UI. */
 export function GrokClone({ userName, onReplyComplete }: LlmCloneProps) {
-    const chat = useFakeChat({
+    const chat = useLlmChat({
         provider: "grok",
         onReplyComplete,
         thinkingMs: 550,
@@ -262,7 +262,7 @@ export function GrokClone({ userName, onReplyComplete }: LlmCloneProps) {
 
                             {/* 중앙 입력창 */}
                             <div className="w-full">
-                                <Composer />
+                                {Composer()}
                             </div>
 
                             {/* 제안 칩 줄 */}
@@ -378,7 +378,7 @@ export function GrokClone({ userName, onReplyComplete }: LlmCloneProps) {
 
                             {/* 하단 고정 입력창 */}
                             <div className="shrink-0 px-4 pb-3">
-                                <Composer />
+                                {Composer()}
                             </div>
                         </>
                     )}

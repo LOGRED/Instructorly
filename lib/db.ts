@@ -31,7 +31,13 @@ import type {
     DrillSummary,
     DrillKind,
     LlmProvider,
+    Atelier,
+    AtelierSummary,
+    AtelierWork,
+    AtelierDoc,
+    AtelierGenre,
 } from "./types";
+import { buildAtelierDoc } from "./atelier-templates";
 
 const DB_DIR = path.join(process.cwd(), "data");
 const DB_PATH = path.join(DB_DIR, "maketor.db");
@@ -174,6 +180,30 @@ function createDb(): Database.Database {
       updated_at INTEGER NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_drills_program ON drills(program_id, updated_at);
+
+    CREATE TABLE IF NOT EXISTS ateliers (
+      id TEXT PRIMARY KEY,
+      program_id TEXT NOT NULL DEFAULT '',
+      genre TEXT NOT NULL DEFAULT 'poem',
+      title TEXT NOT NULL,
+      brief TEXT NOT NULL DEFAULT '',
+      author_id TEXT NOT NULL DEFAULT '',
+      author_name TEXT NOT NULL DEFAULT '',
+      data TEXT NOT NULL DEFAULT '{}',
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_ateliers_program ON ateliers(program_id, updated_at);
+
+    CREATE TABLE IF NOT EXISTS atelier_works (
+      atelier_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      user_name TEXT NOT NULL DEFAULT '',
+      data TEXT NOT NULL DEFAULT '{}',
+      updated_at INTEGER NOT NULL,
+      PRIMARY KEY (atelier_id, user_id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_atelier_works_atelier ON atelier_works(atelier_id);
 
     CREATE TABLE IF NOT EXISTS usage_log (
       id TEXT PRIMARY KEY,
@@ -896,6 +926,10 @@ export function deleteProgram(id: string): void {
     db.prepare("DELETE FROM posts WHERE program_id = ?").run(id);
     db.prepare("DELETE FROM announcements WHERE program_id = ?").run(id);
     db.prepare("DELETE FROM drills WHERE program_id = ?").run(id);
+    db.prepare(
+        "DELETE FROM atelier_works WHERE atelier_id IN (SELECT id FROM ateliers WHERE program_id = ?)",
+    ).run(id);
+    db.prepare("DELETE FROM ateliers WHERE program_id = ?").run(id);
     db.prepare("DELETE FROM programs WHERE id = ?").run(id);
     db.prepare("DELETE FROM enrollments WHERE program_id = ?").run(id);
     db.prepare("DELETE FROM lesson_progress WHERE program_id = ?").run(id);
@@ -1870,4 +1904,213 @@ export function deleteComment(
     // 최상위 댓글이면 자식 대댓글까지 cascade 삭제.
     db.prepare("DELETE FROM post_comments WHERE id = ? OR parent_id = ?").run(id, id);
     return true;
+}
+
+// ========================= ateliers (창작 실습) =========================
+
+interface AtelierRow {
+    id: string;
+    program_id: string;
+    genre: string;
+    title: string;
+    brief: string;
+    author_id: string;
+    author_name: string;
+    data: string; // JSON: { sample: AtelierDoc, templateId?: string }
+    created_at: number;
+    updated_at: number;
+}
+
+// 행의 data(JSON)에서 강사 시범본을 파싱한다. 깨졌거나 비었으면 장르 빈 작품으로 폴백.
+function parseSample(genre: AtelierGenre, data: string): AtelierDoc {
+    try {
+        const parsed = JSON.parse(data) as { sample?: AtelierDoc };
+        if (parsed?.sample && Array.isArray(parsed.sample.pages)) return parsed.sample;
+    } catch {
+        // 파싱 실패는 무시하고 아래 폴백으로.
+    }
+    return buildAtelierDoc(genre);
+}
+
+// 행의 data(JSON)에서 시작 템플릿 id를 꺼낸다. 없으면 undefined(빈 작품에서 시작).
+function parseTemplateId(data: string): string | undefined {
+    try {
+        const parsed = JSON.parse(data) as { templateId?: string };
+        return typeof parsed?.templateId === "string" && parsed.templateId ? parsed.templateId : undefined;
+    } catch {
+        return undefined;
+    }
+}
+
+// DB 행을 Atelier 도메인 객체로 변환한다.
+function rowToAtelier(r: AtelierRow): Atelier {
+    const genre = (r.genre as AtelierGenre) || "poem";
+    return {
+        id: r.id,
+        programId: r.program_id,
+        genre,
+        title: r.title,
+        brief: r.brief,
+        authorId: r.author_id,
+        authorName: r.author_name,
+        templateId: parseTemplateId(r.data),
+        sample: parseSample(genre, r.data),
+        createdAt: r.created_at,
+        updatedAt: r.updated_at,
+    };
+}
+
+// 한 강좌의 창작 실습 목록을 최신순으로 반환한다.
+export function listAteliers(programId?: string): AtelierSummary[] {
+    const rows = (
+        programId
+            ? db
+                  .prepare("SELECT * FROM ateliers WHERE program_id = ? ORDER BY updated_at DESC")
+                  .all(programId)
+            : db.prepare("SELECT * FROM ateliers ORDER BY updated_at DESC").all()
+    ) as AtelierRow[];
+    return rows.map((r) => ({
+        id: r.id,
+        programId: r.program_id,
+        genre: (r.genre as AtelierGenre) || "poem",
+        title: r.title,
+        updatedAt: r.updated_at,
+    }));
+}
+
+// id로 창작 실습 한 건을 조회한다. 없으면 null.
+export function getAtelier(id: string): Atelier | null {
+    const row = db.prepare("SELECT * FROM ateliers WHERE id = ?").get(id) as
+        | AtelierRow
+        | undefined;
+    return row ? rowToAtelier(row) : null;
+}
+
+// 새 창작 실습을 생성한다(장르·템플릿으로 강사 시범본을 자동 구성).
+export function createAtelier(input: {
+    programId: string;
+    genre: AtelierGenre;
+    templateId?: string;
+    title: string;
+    brief?: string;
+    authorId: string;
+    authorName: string;
+}): Atelier {
+    const now = Date.now();
+    const atelier: Atelier = {
+        id: crypto.randomUUID(),
+        programId: input.programId,
+        genre: input.genre,
+        title: input.title.trim() || "새 창작 실습",
+        brief: input.brief?.trim() ?? "",
+        authorId: input.authorId,
+        authorName: input.authorName,
+        templateId: input.templateId || undefined,
+        sample: buildAtelierDoc(input.genre, input.templateId),
+        createdAt: now,
+        updatedAt: now,
+    };
+    return upsertAtelier(atelier);
+}
+
+// 창작 실습을 저장(있으면 갱신)한다. 강사 시범본(sample)을 data에 직렬화한다.
+export function upsertAtelier(atelier: Atelier): Atelier {
+    const now = Date.now();
+    const existing = db
+        .prepare("SELECT created_at FROM ateliers WHERE id = ?")
+        .get(atelier.id) as { created_at: number } | undefined;
+    const createdAt = existing?.created_at ?? atelier.createdAt ?? now;
+    const data = JSON.stringify({ sample: atelier.sample, templateId: atelier.templateId });
+    db.prepare(
+        `INSERT INTO ateliers (id, program_id, genre, title, brief, author_id, author_name, data, created_at, updated_at)
+     VALUES (@id, @program_id, @genre, @title, @brief, @author_id, @author_name, @data, @created_at, @updated_at)
+     ON CONFLICT(id) DO UPDATE SET
+       program_id = @program_id, genre = @genre, title = @title, brief = @brief,
+       author_id = @author_id, author_name = @author_name, data = @data, updated_at = @updated_at`,
+    ).run({
+        id: atelier.id,
+        program_id: atelier.programId,
+        genre: atelier.genre,
+        title: atelier.title,
+        brief: atelier.brief,
+        author_id: atelier.authorId,
+        author_name: atelier.authorName,
+        data,
+        created_at: createdAt,
+        updated_at: now,
+    });
+    return getAtelier(atelier.id)!;
+}
+
+// 창작 실습과 그에 딸린 학생 작품을 모두 삭제한다.
+export function deleteAtelier(id: string): void {
+    db.prepare("DELETE FROM atelier_works WHERE atelier_id = ?").run(id);
+    db.prepare("DELETE FROM ateliers WHERE id = ?").run(id);
+}
+
+// ---------- atelier works (학생별 창작 작품) ----------
+
+interface AtelierWorkRow {
+    atelier_id: string;
+    user_id: string;
+    user_name: string;
+    data: string; // JSON: { doc: AtelierDoc }
+    updated_at: number;
+}
+
+// DB 행을 AtelierWork로 변환한다. data(JSON)가 깨진 행은 null(호출부에서 걸러냄).
+function rowToAtelierWork(r: AtelierWorkRow): AtelierWork | null {
+    try {
+        const parsed = JSON.parse(r.data) as { doc?: AtelierDoc };
+        if (!parsed?.doc || !Array.isArray(parsed.doc.pages)) return null;
+        return {
+            atelierId: r.atelier_id,
+            userId: r.user_id,
+            userName: r.user_name,
+            doc: parsed.doc,
+            updatedAt: r.updated_at,
+        };
+    } catch {
+        return null;
+    }
+}
+
+// 한 학생이 한 창작 실습에서 만든 작품을 조회한다. 없으면 null.
+export function getAtelierWork(atelierId: string, userId: string): AtelierWork | null {
+    const row = db
+        .prepare("SELECT * FROM atelier_works WHERE atelier_id = ? AND user_id = ?")
+        .get(atelierId, userId) as AtelierWorkRow | undefined;
+    return row ? rowToAtelierWork(row) : null;
+}
+
+// 한 창작 실습의 모든 학생 작품을 최신순으로 — 강사 리뷰 피드용.
+export function listAtelierWorks(atelierId: string): AtelierWork[] {
+    const rows = db
+        .prepare("SELECT * FROM atelier_works WHERE atelier_id = ? ORDER BY updated_at DESC")
+        .all(atelierId) as AtelierWorkRow[];
+    return rows.map(rowToAtelierWork).filter((w): w is AtelierWork => w !== null);
+}
+
+// 학생 작품을 저장(있으면 갱신)한다.
+export function saveAtelierWork(input: {
+    atelierId: string;
+    userId: string;
+    userName: string;
+    doc: AtelierDoc;
+}): AtelierWork {
+    const now = Date.now();
+    const data = JSON.stringify({ doc: input.doc });
+    db.prepare(
+        `INSERT INTO atelier_works (atelier_id, user_id, user_name, data, updated_at)
+     VALUES (@atelier_id, @user_id, @user_name, @data, @updated_at)
+     ON CONFLICT(atelier_id, user_id) DO UPDATE SET
+       user_name = @user_name, data = @data, updated_at = @updated_at`,
+    ).run({
+        atelier_id: input.atelierId,
+        user_id: input.userId,
+        user_name: input.userName,
+        data,
+        updated_at: now,
+    });
+    return getAtelierWork(input.atelierId, input.userId)!;
 }

@@ -17,6 +17,7 @@ import { formatCredits, formatKrw } from "@/lib/credits";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { BlockModelPicker } from "@/components/blocks/block-model-picker";
+import { RichTextEditor } from "@/components/blocks/rich-text-editor";
 import { cn } from "@/lib/utils";
 
 /** 텍스트 블럭의 강사 편집 카드. 직접 작성/AI 생성 두 보기를 토글한다. */
@@ -120,12 +121,11 @@ export function TextBlockCard({
         return (
             <div className="space-y-2">
                 {toggle}
-                <Textarea
+                <RichTextEditor
                     value={block.markdown}
-                    onChange={(e) => onChange({ ...block, markdown: e.target.value })}
-                    placeholder="내용을 입력하세요. 마크다운(**굵게**, # 제목, - 목록)을 쓸 수 있어요."
+                    onChange={(md) => onChange({ ...block, markdown: md })}
                     autoFocus={autoFocus}
-                    className="min-h-24 text-base"
+                    placeholder="내용을 입력하세요. 위 버튼으로 굵게·제목·목록을 넣을 수 있어요."
                 />
             </div>
         );

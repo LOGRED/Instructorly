@@ -265,8 +265,15 @@ export interface UserPublic {
 // ---------- Programs (강좌) — group lessons (Course) into weeks ----------
 
 /** What kind of content a week entry points at. 시험(exam)·연습(practice)은 실제
-  *  LLM 사이트(ChatGPT/Claude/Gemini/Grok)를 똑같이 흉내 낸 화면에서 진행한다. */
-export type WeekItemType = "lesson" | "post" | "announcement" | "exam" | "practice";
+  *  LLM 사이트(ChatGPT/Claude/Gemini/Grok)를 똑같이 흉내 낸 화면에서 진행한다.
+  *  실습(atelier)은 시·동화책·에세이를 만들어 PDF·책으로 출력하는 창작 실습이다. */
+export type WeekItemType =
+    | "lesson"
+    | "post"
+    | "announcement"
+    | "exam"
+    | "practice"
+    | "atelier";
 
 /** One ordered entry inside a week: 강의(Course), 게시물(Post), 공지사항(Announcement),
   *  또는 시험·연습(Drill). */
@@ -615,4 +622,99 @@ export interface UsageReport {
     recent: UsageRecord[];
     records: UsageRecord[];
     totals: { credits: number; krw: number; usd: number; count: number };
+}
+
+// ---------- Atelier (창작 실습) — 시·동화책·에세이를 만들어 PDF/책으로 ----------
+// 강좌 한 주차의 항목(WeekItem "atelier")으로, 학습자가 직접 시/동화책/에세이를 창작해
+// 책 형태로 미리보고 PDF로 내려받는 실습이다. 강사는 시범본(sample)을 만들어 보여 주고,
+// 학습자는 각자 자기 작품(AtelierWork)을 만든다. 본문은 기존 Page/Block 체계를 그대로 쓴다.
+
+/** 창작 실습 장르 — 시·동화책·에세이. */
+export type AtelierGenre = "poem" | "storybook" | "essay";
+
+/** 책/PDF 한 쪽의 종횡비 — 세로 A4·가로 A4·정사각(1:1)·가로 4:3·세로 3:4. */
+export type AtelierPageRatio = "a4" | "a4l" | "square" | "r4_3" | "r3_4" | "wide";
+
+/** 본문 글꼴 — 명조(serif)·고딕(sans)·둥근(round). 색 테마와 독립적으로 고른다. */
+export type AtelierFont = "serif" | "sans" | "round";
+
+/** 책의 색 테마(표지·본문 공통). PDF 캡처(html2canvas) 안전을 위해 hex/rgb 값만 쓴다. 글꼴은 분리(AtelierFont). */
+export interface AtelierTheme {
+    /** 테마 프리셋 식별 키. */
+    key: string;
+    /** 강조 색(표지 제목·구분선 등) hex. */
+    accent: string;
+    /** 표지 배경 hex(또는 CSS 그라데이션 문자열). */
+    coverBg: string;
+    /** 표지 글자색 hex. */
+    coverText: string;
+    /** 본문 페이지 배경 hex. */
+    pageBg: string;
+    /** 본문 글자색 hex. */
+    pageText: string;
+}
+
+/** 책 표지 정보. */
+export interface AtelierCover {
+    /** 책 제목. */
+    title: string;
+    /** 부제(장르 표기 등). */
+    subtitle: string;
+    /** 지은이(표지 하단 표기). */
+    author: string;
+    /** 표지 이미지(data URL 또는 원격 URL). 없으면 색·패턴만. */
+    image: string | null;
+    /** 표지 그림 생성에 쓸 모델 id. 비어 있으면 무료(Pollinations FLUX). 강사가 고른다. */
+    model?: string;
+    /** 표시용 모델 이름(예: "Nano Banana 2"). */
+    modelLabel?: string;
+}
+
+/** 한 권의 창작 작품 문서 — 표지 + 본문 페이지. 강사 시범본과 학생 작품이 같은 규격이다. */
+export interface AtelierDoc {
+    genre: AtelierGenre;
+    cover: AtelierCover;
+    theme: AtelierTheme;
+    /** 책 페이지 비율. 미설정이면 장르 기본값(genreMeta.pageRatio). */
+    ratio?: AtelierPageRatio;
+    /** 본문 글꼴. 미설정이면 장르 기본값(genreMeta.defaultFont). 색 테마와 분리. */
+    font?: AtelierFont;
+    /** 본문 페이지들(기존 Page/Block 재사용). 각 Page = 책의 한 쪽. */
+    pages: Page[];
+}
+
+/** 강사가 개설하는 창작 실습 항목 — 장르·안내문 + 강사 시범본(sample). */
+export interface Atelier {
+    id: string;
+    programId: string;
+    genre: AtelierGenre;
+    title: string;
+    /** 학습자 안내문(과제 설명). */
+    brief: string;
+    authorId: string;
+    authorName: string;
+    /** 시작에 쓴 템플릿 id. 빈 작품에서 시작했으면 비어 있음(배지에 장르 표기 여부를 가른다). */
+    templateId?: string;
+    /** 강사 시범 작품 문서(학생이 참고용으로 열람). */
+    sample: AtelierDoc;
+    createdAt: number;
+    updatedAt: number;
+}
+
+/** 주차 목록·요약용 가벼운 실습 정보. */
+export interface AtelierSummary {
+    id: string;
+    programId: string;
+    genre: AtelierGenre;
+    title: string;
+    updatedAt: number;
+}
+
+/** 한 학생이 한 창작 실습에서 만든 자기 작품. */
+export interface AtelierWork {
+    atelierId: string;
+    userId: string;
+    userName: string;
+    doc: AtelierDoc;
+    updatedAt: number;
 }

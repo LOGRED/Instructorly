@@ -7,7 +7,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BookOpen, LogOut, ChevronDown, UserCircle, BarChart3 } from "lucide-react";
+import { BookOpen, LogOut, ChevronDown, UserCircle, BarChart3, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
 
 import { BrandLogo } from "@/components/brand-logo";
@@ -120,6 +120,14 @@ export function SiteHeader() {
                                             </span>
                                         </div>
                                     </div>
+
+                                    <DropdownMenuSeparator />
+
+                                    {/* 사용 설명서 — 역할(강사/학생)에 맞는 안내 페이지로 이동 */}
+                                    <DropdownMenuItem onClick={() => router.push("/guide")}>
+                                        <Lightbulb className="size-4" />
+                                        사용 설명서
+                                    </DropdownMenuItem>
 
                                     <DropdownMenuSeparator />
 

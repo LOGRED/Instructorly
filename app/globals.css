@@ -231,6 +231,21 @@ html {
   --warning-foreground: oklch(0 0 0);
 }
 
+/* 모서리 둥글기(코너 라운드) — 내 정보 설정에서 5단계로 고른다.
+   "기본"은 data 속성을 붙이지 않아 위 --radius: 0.5rem 값을 그대로 쓴다(= 현재 기본값 유지). */
+[data-corner-radius="none"] {
+  --radius: 0rem;
+}
+[data-corner-radius="sm"] {
+  --radius: 0.25rem;
+}
+[data-corner-radius="lg"] {
+  --radius: 0.75rem;
+}
+[data-corner-radius="xl"] {
+  --radius: 1rem;
+}
+
 @layer base {
   body {
     font-family: var(--font-sans);
@@ -453,6 +468,26 @@ html {
 
 .drill-fade-in {
   animation: drillFadeIn 0.35s ease both;
+}
+
+/* 사용 설명서 스토리보드(사진 슬라이드) — 사진이 바뀔 때 부드럽게 나타나는 효과 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 사용 설명서 스토리보드 — 자동 재생 진행 막대가 왼쪽에서 오른쪽으로 차오르는 효과 */
+@keyframes fillBar {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 /* 랜딩 눈동자 — 커서 추적 이동을 부드럽게, 감소된 모션 환경에서는 즉시 이동 */

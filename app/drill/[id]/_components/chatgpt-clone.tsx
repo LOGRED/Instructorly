@@ -26,7 +26,7 @@ import {
 
 import { Markdown } from "@/components/markdown";
 import {
-    useFakeChat,
+    useLlmChat,
     useAutoScroll,
     BlinkingCaret,
     type LlmCloneProps,
@@ -50,7 +50,7 @@ const SIDEBAR_HISTORY = [
 ];
 
 export function ChatGptClone({ userName, onReplyComplete }: LlmCloneProps) {
-    const chat = useFakeChat({
+    const chat = useLlmChat({
         provider: "chatgpt",
         onReplyComplete,
         thinkingMs: 600,
@@ -185,7 +185,7 @@ export function ChatGptClone({ userName, onReplyComplete }: LlmCloneProps) {
                             무엇을 도와드릴까요?
                         </h1>
                         <div className="w-full">
-                            <Composer />
+                            {Composer()}
                         </div>
                     </div>
                 ) : (
@@ -243,7 +243,7 @@ export function ChatGptClone({ userName, onReplyComplete }: LlmCloneProps) {
                             </div>
                         </div>
                         <div className="pb-3">
-                            <Composer />
+                            {Composer()}
                         </div>
                     </>
                 )}

@@ -21,6 +21,11 @@ import type {
     DrillSummary,
     DrillKind,
     LlmProvider,
+    Atelier,
+    AtelierSummary,
+    AtelierWork,
+    AtelierDoc,
+    AtelierGenre,
     StudioCatalog,
     StudioCategory,
     StudioGenResult,
@@ -728,6 +733,102 @@ export async function deleteDrill(id: string): Promise<void> {
     await unwrap<{ ok: boolean }>(
         await fetch(`/api/drills/${id}`, { method: "DELETE" }),
     );
+}
+
+// ---------- ateliers (창작 실습) ----------
+
+// 한 강좌의 창작 실습 목록을 가져온다.
+export async function listAteliers(programId?: string): Promise<AtelierSummary[]> {
+    const q = programId ? `?programId=${encodeURIComponent(programId)}` : "";
+    const data = await unwrap<{ ateliers: AtelierSummary[] }>(
+        await fetch(`/api/ateliers${q}`, { cache: "no-store" }),
+    );
+    return data.ateliers;
+}
+
+// 창작 실습 한 건(강사 시범본 포함)을 가져온다.
+export async function getAtelier(id: string): Promise<Atelier> {
+    const data = await unwrap<{ atelier: Atelier }>(
+        await fetch(`/api/ateliers/${id}`, { cache: "no-store" }),
+    );
+    return data.atelier;
+}
+
+// 새 창작 실습을 생성한다(장르·템플릿 선택).
+export async function createAtelier(input: {
+    programId: string;
+    genre: AtelierGenre;
+    templateId?: string;
+    title: string;
+    brief?: string;
+    authorId: string;
+    authorName: string;
+}): Promise<Atelier> {
+    const data = await unwrap<{ atelier: Atelier }>(
+        await fetch("/api/ateliers", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(input),
+        }),
+    );
+    return data.atelier;
+}
+
+// 창작 실습(강사 시범본 등)을 저장한다.
+export async function saveAtelier(atelier: Atelier): Promise<Atelier> {
+    const data = await unwrap<{ atelier: Atelier }>(
+        await fetch(`/api/ateliers/${atelier.id}`, {
+            method: "PUT",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(atelier),
+        }),
+    );
+    return data.atelier;
+}
+
+// 창작 실습을 삭제한다(학생 작품까지 함께 삭제).
+export async function deleteAtelier(id: string): Promise<void> {
+    await unwrap<{ ok: boolean }>(
+        await fetch(`/api/ateliers/${id}`, { method: "DELETE" }),
+    );
+}
+
+// 한 학생의 작품을 가져온다(없으면 null).
+export async function getAtelierWork(
+    atelierId: string,
+    userId: string,
+): Promise<AtelierWork | null> {
+    const q = new URLSearchParams({ userId });
+    const data = await unwrap<{ work: AtelierWork | null }>(
+        await fetch(`/api/ateliers/${atelierId}/work?${q.toString()}`, { cache: "no-store" }),
+    );
+    return data.work;
+}
+
+// 한 창작 실습의 모든 학생 작품을 가져온다(강사 리뷰용).
+export async function listAtelierWorks(atelierId: string): Promise<AtelierWork[]> {
+    const data = await unwrap<{ works: AtelierWork[] }>(
+        await fetch(`/api/ateliers/${atelierId}/work?all=1`, { cache: "no-store" }),
+    );
+    return data.works;
+}
+
+// 학생 작품을 저장(있으면 갱신)한다.
+export async function saveAtelierWork(input: {
+    atelierId: string;
+    userId: string;
+    userName: string;
+    doc: AtelierDoc;
+}): Promise<AtelierWork> {
+    const { atelierId, ...body } = input;
+    const data = await unwrap<{ work: AtelierWork }>(
+        await fetch(`/api/ateliers/${atelierId}/work`, {
+            method: "PUT",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(body),
+        }),
+    );
+    return data.work;
 }
 
 // ---------- AI 스튜디오 (OpenRouter · 크레딧) ----------

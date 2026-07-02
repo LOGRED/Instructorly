@@ -23,7 +23,7 @@ import {
 
 import { Markdown } from "@/components/markdown";
 import {
-    useFakeChat,
+    useLlmChat,
     useAutoScroll,
     BlinkingCaret,
     type LlmCloneProps,
@@ -119,7 +119,7 @@ function ThinkingShimmer({ gradId }: { gradId: string }) {
 
 /** Gemini 클론 메인 컴포넌트 — 사이드바·헤더·메시지 영역·입력창 전체를 렌더링한다. */
 export function GeminiClone({ userName, onReplyComplete }: LlmCloneProps) {
-    const chat = useFakeChat({
+    const chat = useLlmChat({
         provider: "gemini",
         onReplyComplete,
         thinkingMs: 750,
@@ -339,7 +339,7 @@ export function GeminiClone({ userName, onReplyComplete }: LlmCloneProps) {
                                 무엇을 도와드릴까요?
                             </p>
                         </div>
-                        <Composer />
+                        {Composer()}
                     </div>
                 ) : (
                     /* ───── 대화 화면 ───── */
@@ -428,7 +428,7 @@ export function GeminiClone({ userName, onReplyComplete }: LlmCloneProps) {
 
                         {/* 하단 고정 입력창 */}
                         <div className="pb-3">
-                            <Composer />
+                            {Composer()}
                         </div>
                     </>
                 )}

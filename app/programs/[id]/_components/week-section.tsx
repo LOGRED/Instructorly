@@ -20,6 +20,7 @@ import {
     GripVertical,
     GraduationCap,
     Dumbbell,
+    Feather,
     ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -40,7 +41,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import type { Week, LessonProgress, Role, WeekItem, WeekItemType, LlmProvider } from "@/lib/types";
+import type { Week, LessonProgress, Role, WeekItem, WeekItemType, LlmProvider, AtelierGenre } from "@/lib/types";
+import { genreMeta } from "@/lib/atelier-templates";
 import { saveProgram } from "@/lib/api";
 import { PROVIDERS } from "@/lib/llm-clones";
 import { ProviderLogo } from "@/components/provider-logo";
@@ -58,6 +60,7 @@ import { AddLessonDialog } from "./add-lesson-dialog";
 import { AddPostDialog } from "./add-post-dialog";
 import { AddAnnouncementDialog } from "./add-announcement-dialog";
 import { AddDrillDialog } from "./add-drill-dialog";
+import { AddAtelierDialog } from "./add-atelier-dialog";
 import { WeekActions } from "./week-actions";
 import { ItemActions } from "./item-actions";
 import type { Program } from "@/lib/types";
@@ -70,6 +73,10 @@ interface ItemMeta {
     pageCount?: number;
     /** 시험·연습 전용 — 선택한 LLM(브랜드 로고 표시용). */
     provider?: LlmProvider;
+    /** 실습(atelier) 전용 — 장르(배지 라벨 "시 실습" 등에 쓴다). */
+    genre?: AtelierGenre;
+    /** 실습(atelier) 전용 — 시작 템플릿 id. 있으면 배지에 장르를 표기하고, 없으면 그냥 "실습". */
+    templateId?: string;
 }
 
 interface WeekSectionProps {
@@ -94,6 +101,7 @@ function itemIcon(type: WeekItemType) {
     if (type === "post") return FileText;
     if (type === "announcement") return Megaphone;
     if (type === "exam") return GraduationCap;
+    if (type === "atelier") return Feather;
     return Dumbbell; // practice
 }
 
@@ -103,7 +111,16 @@ function itemTypeLabel(type: WeekItemType): string {
     if (type === "post") return "게시물";
     if (type === "announcement") return "공지";
     if (type === "exam") return "시험";
+    if (type === "atelier") return "실습";
     return "연습"; // practice
+}
+
+// 항목 배지 라벨 — 실습(atelier)은 시작 템플릿으로 만들었으면 장르를 앞에 붙인다("시 실습"). 빈 작품에서 시작했으면 그냥 "실습".
+function itemBadgeLabel(type: WeekItemType, meta: ItemMeta | undefined): string {
+    if (type === "atelier" && meta?.templateId && meta.genre) {
+        return `${genreMeta(meta.genre).label} 실습`;
+    }
+    return itemTypeLabel(type);
 }
 
 // 항목 타입별 색상 클래스(아이콘 블록 배경/글자, 타입 배지)를 반환한다 — 종류를 한눈에 구분하기 위함.
@@ -133,6 +150,12 @@ function itemTypeStyle(type: WeekItemType): { iconBg: string; iconText: string; 
                 iconText: "text-violet-600 dark:text-violet-400",
                 badge: "border-transparent bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300",
             };
+        case "atelier": // 실습(창작) — 로즈
+            return {
+                iconBg: "bg-rose-100 dark:bg-rose-500/15",
+                iconText: "text-rose-600 dark:text-rose-400",
+                badge: "border-transparent bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
+            };
         default: // 연습 — 초록
             return {
                 iconBg: "bg-emerald-100 dark:bg-emerald-500/15",
@@ -153,6 +176,8 @@ function itemTypeColor(type: WeekItemType): { solid: string; tint: string; text:
             return { solid: "bg-amber-600", tint: "bg-amber-50 dark:bg-amber-500/10", text: "text-amber-700 dark:text-amber-300", dot: "bg-amber-500" };
         case "exam":
             return { solid: "bg-violet-600", tint: "bg-violet-50 dark:bg-violet-500/10", text: "text-violet-700 dark:text-violet-300", dot: "bg-violet-500" };
+        case "atelier":
+            return { solid: "bg-rose-600", tint: "bg-rose-50 dark:bg-rose-500/10", text: "text-rose-700 dark:text-rose-300", dot: "bg-rose-500" };
         default:
             return { solid: "bg-emerald-600", tint: "bg-emerald-50 dark:bg-emerald-500/10", text: "text-emerald-700 dark:text-emerald-300", dot: "bg-emerald-500" };
     }
@@ -290,7 +315,7 @@ function CardHeader({
     cardStyle: CardStyle;
 }) {
     const Icon = itemIcon(item.type);
-    const typeLabel = itemTypeLabel(item.type);
+    const typeLabel = itemBadgeLabel(item.type, meta);
     const color = itemTypeColor(item.type);
 
     // 시험·연습 LLM 칩(두 모양 공용).
@@ -427,6 +452,17 @@ function StudentCardAction({
             </Button>
         );
     }
+    if (item.type === "atelier") {
+        return (
+            <Button
+                size="lg"
+                className="w-full h-12 text-base"
+                render={<Link href={`/atelier/${item.id}`} />}
+            >
+                만들기
+            </Button>
+        );
+    }
     // exam | practice
     return (
         <Button
@@ -530,6 +566,27 @@ function InstructorCardActions({
             </div>
         );
     }
+    if (item.type === "atelier") {
+        return (
+            <div className="flex flex-wrap gap-2">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    render={<Link href={`/atelier/${item.id}`} />}
+                >
+                    <Eye className="size-3.5" />
+                    시범 편집
+                </Button>
+                <ItemActions
+                    program={program}
+                    weekId={weekId}
+                    item={item}
+                    title={itemTitle}
+                    onSaved={onProgramSaved}
+                />
+            </div>
+        );
+    }
     // exam | practice
     return (
         <div className="flex flex-wrap gap-2">
@@ -553,7 +610,7 @@ function InstructorCardActions({
 }
 
 /** 타입 그룹 정렬 순서 — 공지를 맨 위(중요 알림)에 두고 강의·게시물·시험·연습 순. */
-const GROUP_ORDER: WeekItemType[] = ["announcement", "lesson", "post", "exam", "practice"];
+const GROUP_ORDER: WeekItemType[] = ["announcement", "lesson", "post", "exam", "practice", "atelier"];
 
 // week.items를 타입별 그룹으로 묶어 GROUP_ORDER 순서로 반환한다(빈 그룹 제외).
 function groupByType(items: WeekItem[]): { type: WeekItemType; items: WeekItem[] }[] {
@@ -653,7 +710,7 @@ function TableItem({
     const itemTitle = meta?.title ?? "제목 없음";
     const Icon = itemIcon(item.type);
     const typeStyle = itemTypeStyle(item.type);
-    const typeLabel = itemTypeLabel(item.type);
+    const typeLabel = itemBadgeLabel(item.type, meta);
     const color = itemTypeColor(item.type);
     const { myProgress, myPct, completedCount, avgPct } = lessonStats(
         item, studentProgress, allProgress, studentCount,
@@ -814,6 +871,37 @@ function TableItem({
                             </Button>
                         )
                     )}
+
+                    {/* 실습(창작) 액션 — 강사: 시범 편집+삭제 / 학생: 만들기 */}
+                    {item.type === "atelier" && (
+                        role === "instructor" ? (
+                            <>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    render={<Link href={`/atelier/${item.id}`} />}
+                                >
+                                    <Eye className="size-3.5" />
+                                    시범 편집
+                                </Button>
+                                <ItemActions
+                                    program={program}
+                                    weekId={weekId}
+                                    item={item}
+                                    title={itemTitle}
+                                    onSaved={onProgramSaved}
+                                />
+                            </>
+                        ) : (
+                            <Button
+                                size="lg"
+                                className="min-w-24"
+                                render={<Link href={`/atelier/${item.id}`} />}
+                            >
+                                만들기
+                            </Button>
+                        )
+                    )}
                 </div>
             </div>
 
@@ -902,7 +990,7 @@ function CardItem({
     // 커버 — 상단 색 배너(타입 색 틴트 + 큰 흐린 아이콘 + 타입 알약) 아래로 제목·진행률·액션.
     if (cardStyle === "cover") {
         const Icon = itemIcon(item.type);
-        const typeLabel = itemTypeLabel(item.type);
+        const typeLabel = itemBadgeLabel(item.type, meta);
         const color = itemTypeColor(item.type);
         return (
             <SortableCard id={item.id} dragEnabled={canReorder} cardStyle={cardStyle}>
@@ -1121,6 +1209,13 @@ export function WeekSection({
                                     userId={userId}
                                     nickname={nickname}
                                     kind="practice"
+                                    onSaved={onProgramSaved}
+                                />
+                                <AddAtelierDialog
+                                    program={program}
+                                    weekId={week.id}
+                                    userId={userId}
+                                    nickname={nickname}
                                     onSaved={onProgramSaved}
                                 />
                             </>
